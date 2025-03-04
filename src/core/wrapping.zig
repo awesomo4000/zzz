@@ -7,8 +7,8 @@ const Wrapped = enum(usize) { null = 0, true = 1, false = 2, void = 3 };
 /// Wraps the given value into a specified integer type.
 /// The value must fit within the size of the given I.
 pub fn wrap(comptime I: type, value: anytype) I {
-    assert(@typeInfo(I) == .Int);
-    assert(@typeInfo(I).Int.signedness == .unsigned);
+    assert(@typeInfo(I) == .int);
+    assert(@typeInfo(I).int.signedness == .unsigned);
 
     if (comptime @bitSizeOf(@TypeOf(value)) > @bitSizeOf(I)) {
         @compileError("type: " ++ @typeName(value) ++ " is larger than given integer (" ++ @typeName(I) ++ ")");
@@ -16,9 +16,19 @@ pub fn wrap(comptime I: type, value: anytype) I {
 
     return context: {
         switch (comptime @typeInfo(@TypeOf(value))) {
-            .Pointer => break :context @intFromPtr(value),
-            .Void => break :context @intFromEnum(Wrapped.void),
-            .Int => |info| {
+            .pointer => break :context @intFromPtr(value),
+            .void => break :context @intFromEnum(Wrapped.void),
+            .int => |info| {
+                const uint = @Type(std.builtin.Type{
+                    .int = .{
+                        .signedness = .unsigned,
+                        .bits = info.bits,
+                    },
+                });
+                break :context @intCast(@as(uint, @bitCast(value)));
+            },
+            .comptime_int => break :context @intCast(value),
+            .float => |info| {
                 const uint = @Type(std.builtin.Type{
                     .Int = .{
                         .signedness = .unsigned,
@@ -27,28 +37,18 @@ pub fn wrap(comptime I: type, value: anytype) I {
                 });
                 break :context @intCast(@as(uint, @bitCast(value)));
             },
-            .ComptimeInt => break :context @intCast(value),
-            .Float => |info| {
+            .comptime_float => break :context @intCast(@as(I, @bitCast(value))),
+            .@"struct" => |info| {
                 const uint = @Type(std.builtin.Type{
-                    .Int = .{
-                        .signedness = .unsigned,
-                        .bits = info.bits,
-                    },
-                });
-                break :context @intCast(@as(uint, @bitCast(value)));
-            },
-            .ComptimeFloat => break :context @intCast(@as(I, @bitCast(value))),
-            .Struct => |info| {
-                const uint = @Type(std.builtin.Type{
-                    .Int = .{
+                    .int = .{
                         .signedness = .unsigned,
                         .bits = @bitSizeOf(info.backing_integer.?),
                     },
                 });
                 break :context @intCast(@as(uint, @bitCast(value)));
             },
-            .Bool => break :context if (value) @intFromEnum(Wrapped.true) else @intFromEnum(Wrapped.false),
-            .Optional => break :context if (value) |v| wrap(I, v) else @intFromEnum(Wrapped.null),
+            .bool => break :context if (value) @intFromEnum(Wrapped.true) else @intFromEnum(Wrapped.false),
+            .optional => break :context if (value) |v| wrap(I, v) else @intFromEnum(Wrapped.null),
             else => @compileError("wrapping unsupported type: " ++ @typeName(@TypeOf(value))),
         }
     };

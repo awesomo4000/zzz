@@ -30,16 +30,16 @@ pub fn decode_alloc(allocator: std.mem.Allocator, input: []const u8) ![]const u8
 
 fn parse_from(comptime name: []const u8, comptime T: type, value: []const u8) !T {
     switch (@typeInfo(T)) {
-        .Int => |info| {
+        .int => |info| {
             return switch (info.signedness) {
                 .unsigned => try std.fmt.parseUnsigned(T, value, 10),
                 .signed => try std.fmt.parseInt(T, value, 10),
             };
         },
-        .Float => |_| {
+        .float => |_| {
             return try std.fmt.parseFloat(T, value);
         },
-        .Optional => |info| {
+        .optional => |info| {
             return @as(T, try parse_from(name, info.child, value));
         },
         else => switch (T) {
@@ -52,16 +52,16 @@ fn parse_from(comptime name: []const u8, comptime T: type, value: []const u8) !T
 
 fn parse_struct(comptime T: type, map: *const AnyCaseStringMap) !T {
     var ret: T = undefined;
-    assert(@typeInfo(T) == .Struct);
-    const struct_info = @typeInfo(T).Struct;
+    assert(@typeInfo(T) == .@"struct");
+    const struct_info = @typeInfo(T).@"struct";
     inline for (struct_info.fields) |field| {
         const maybe_value_str: ?[]const u8 = map.get(field.name);
 
         if (maybe_value_str) |value| {
             @field(ret, field.name) = try parse_from(field.name, field.type, value);
-        } else if (field.default_value) |default| {
+        } else if (field.default_value_ptr) |default| {
             @field(ret, field.name) = @as(*const field.type, @ptrCast(@alignCast(default))).*;
-        } else if (@typeInfo(field.type) == .Optional) {
+        } else if (@typeInfo(field.type) == .optional) {
             @field(ret, field.name) = null;
         } else return error.FieldEmpty;
     }

@@ -1,15 +1,16 @@
 .{
-    .name = "zzz",
+    .fingerprint = 0xc3273dca37d47017,
+    .name = .zzz,
     .version = "0.3.0",
     .minimum_zig_version = "0.13.0",
     .dependencies = .{
         .tardy = .{
-            .url = "git+https://github.com/mookums/tardy#084f5e04b333a68c6b3c433de241f3dcc368b84b",
-            .hash = "1220960cc794c77b2b1fcab1de6fcf37c6c9571433473541007a0a9258dd7f4f8c0b",
+            .url = "https://github.com/awesomo4000/tardy/archive/refs/heads/0.14.0.tar.gz",
+            .hash = "tardy-0.3.0-YBx_f9G-AwD9AQJ14Y8s3AOLk_nTjJZtiE2T1TbhJqbg",
         },
         .bearssl = .{
-            .url = "git+https://github.com/mookums/bearssl-zig#37a96eee56fe2543579bbc6da148ca886f3dd32b",
-            .hash = "12200e89d16612100a2f145cfa292537ac25b2205735fc1c644c799d2995f94e8e20",
+            .url = "https://github.com/awesomo4000/bearssl-zig/archive/refs/heads/v0.6-zig-0.14.0.tar.gz",
+            .hash = "bearssl-0.6.0-ZnxZuzetIgAOidFmEhAKLxRc-iklN6wlsiBXNfwcZEx5",
         },
     },
 
