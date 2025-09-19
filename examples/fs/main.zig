@@ -17,7 +17,8 @@ const Route = http.Route;
 const Respond = http.Respond;
 const FsDir = http.FsDir;
 
-const Compression = http.Middlewares.Compression;
+// TODO: Re-enable when compression is ported to Zig 0.15.1
+// const Compression = http.Middlewares.Compression;
 
 fn base_handler(ctx: *const Context, _: void) !Respond {
     const body =
@@ -52,7 +53,8 @@ pub fn main() !void {
     const static_dir = Dir.from_std(try std.fs.cwd().openDir("examples/fs/static", .{}));
 
     var router = try Router.init(allocator, &.{
-        Compression(.{ .gzip = .{} }),
+        // TODO: Re-enable when compression is ported to Zig 0.15.1
+        // Compression(.{ .gzip = .{} }),
         Route.init("/").get({}, base_handler).layer(),
         FsDir.serve("/", static_dir),
     }, .{});

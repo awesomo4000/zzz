@@ -17,7 +17,8 @@ const Respond = http.Respond;
 
 const secsock = zzz.secsock;
 const SecureSocket = secsock.SecureSocket;
-const Compression = http.Middlewares.Compression;
+// TODO: Re-enable when compression is ported to Zig 0.15.1
+// const Compression = http.Middlewares.Compression;
 
 fn root_handler(ctx: *const Context, _: void) !Respond {
     const body =
@@ -54,7 +55,8 @@ pub fn main() !void {
 
     var router = try Router.init(allocator, &.{
         Route.init("/").get({}, root_handler).layer(),
-        Compression(.{ .gzip = .{} }),
+        // TODO: Re-enable when compression is ported to Zig 0.15.1
+        // Compression(.{ .gzip = .{} }),
         Route.init("/embed/pico.min.css").embed_file(
             .{ .mime = http.Mime.CSS },
             @embedFile("embed/pico.min.css"),
